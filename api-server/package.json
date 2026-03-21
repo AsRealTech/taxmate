@@ -1,0 +1,42 @@
+{
+  "name": "taxmate-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx ./src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:push": "drizzle-kit push --config ./drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
+    "seed": "tsx ./src/lib/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google/genai": "^1.46.0",
+    "archiver": "^7.0.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2",
+    "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.44.2",
+    "drizzle-zod": "^0.7.0",
+    "express": "^5",
+    "openai": "^4.104.0",
+    "pdfkit": "^0.18.0",
+    "pg": "^8.13.3",
+    "together-ai": "^0.38.0",
+    "zod": "^3.25.56"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.15.3",
+    "@types/pdfkit": "^0.17.5",
+    "@types/pg": "^8.11.13",
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3"
+  }
+}
