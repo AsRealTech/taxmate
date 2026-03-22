@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Send, Bot, User, ExternalLink, Loader2, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const BASE = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+const BASE = import.meta.env.VITE_API_URL;
 
 const FAQ_ITEMS = [
   {

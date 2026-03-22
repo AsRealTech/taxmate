@@ -191,7 +191,7 @@ export default function Receipts() {
           ) : (
             <div className="text-center p-8 bg-secondary/50 rounded-3xl">
               <img 
-                src={`${import.meta.env.VITE_API_URL}images/empty-receipts.png`} 
+                src={`${import.meta.env.VITE_API_URL}/images/empty-receipts.png`} 
                 alt="No receipts" 
                 className="w-40 h-40 mx-auto opacity-80 mix-blend-multiply"
               />
