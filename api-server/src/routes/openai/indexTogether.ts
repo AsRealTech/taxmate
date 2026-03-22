@@ -48,7 +48,12 @@ router.post("/conversations", async (req, res) => {
 
 router.get("/conversations/:id", async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    // const id = parseInt(req.params.id, 10);
+    const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({ error: "Invalid conversation ID" });
+        return;
+      }
     const [conv] = await db
       .select()
       .from(conversations)
@@ -70,7 +75,11 @@ router.get("/conversations/:id", async (req, res) => {
 
 router.get("/conversations/:id/messages", async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "Invalid conversation ID" });
+      return;
+    }
     const [conv] = await db
       .select()
       .from(conversations)
@@ -93,7 +102,11 @@ router.get("/conversations/:id/messages", async (req, res) => {
 router.post("/conversations/:id/messages", async (req, res) => {
 
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({ error: "Invalid conversation ID" });
+        return;
+      }
     const content = typeof req.body?.content === "string" ? req.body.content.trim() : "";
     if (!content) {
       res.status(400).json({ error: "content is required" });
@@ -126,85 +139,110 @@ router.post("/conversations/:id/messages", async (req, res) => {
       const history = histor.slice(-8);
 
 
-const chatMessages = [
+// const chatMessages = [
+//   { role: "system", content: SYSTEM_PROMPT },
+//   ...history
+//     .filter((m) => m.content && m.content.trim().length > 0)
+//     .map((m) => ({
+//       role: m.role,
+//       content: m.content.trim(),
+//     })),
+// ];
+
+
+
+const safeMessages = [
   { role: "system", content: SYSTEM_PROMPT },
   ...history
-    .filter((m) => m.content && m.content.trim().length > 0)
+    .filter((m) => m?.content && typeof m.content === "string")
     .map((m) => ({
-      role: m.role,
+      role: m.role === "assistant" ? "assistant" : "user",
       content: m.content.trim(),
     })),
 ];
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
 
-    res.write(`data: ${JSON.stringify({ start: true })}\n\n`);
+ res.setHeader("Content-Type", "text/event-stream");
+res.setHeader("Cache-Control", "no-cache");
+res.setHeader("Connection", "keep-alive");
 
-    // let fullResponse = "";
+res.flushHeaders?.();
 
-    try {
-        // Attempt streaming response from Together AI
-        const stream = await together.chat.completions.create({
-          model: "meta-llama/Llama-3-8b-chat-hf",
-          messages: chatMessages,
-          stream: true,
-        });
+res.write(`data: ${JSON.stringify({ start: true })}\n\n`);
 
-        let fullResponse = "";
+let fullResponse = "";
+let responseEnded = false;
 
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            fullResponse += content;
-            res.write(`data: ${JSON.stringify({ content })}\n\n`);
-          }
-        }
+try {
+  const stream = await together.chat.completions.create({
+    model: "meta-llama/Llama-3-8b-chat-hf",
+    messages: safeMessages as {
+      role: "system" | "user" | "assistant";
+      content: string;
+    }[],
+    stream: true,
+  });
 
-        // Save AI response to DB
-        await db.insert(messages).values({
-          conversationId: id,
-          role: "assistant",
-          content: fullResponse,
-        });
+  for await (const chunk of stream) {
+    const content = chunk?.choices?.[0]?.delta?.content;
 
-        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+    if (content) {
+      fullResponse += content;
+      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+    }
+  }
+
+  await db.insert(messages).values({
+    conversationId: id,
+    role: "assistant",
+    content: fullResponse,
+  });
+
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+
+  if (!responseEnded) {
+    res.end();
+    responseEnded = true;
+  }
+
+} catch (err: any) {
+  console.error("Together AI error:", err);
+
+  const isCreditLimitError =
+    err?.status === 429 ||
+    err?.message?.includes("quota") ||
+    err?.message?.includes("credits");
+
+  if (isCreditLimitError) {
+    const fallbackMessage =
+      fallbackResponses[content] ??
+      "Sorry, I'm having trouble generating a response at the moment due to temporary AI service limits.. Please try again later or contact FIRS directly at www.firs.gov.ng or call 0800-FIRS-TIN (0800-3477-846) for urgent tax inquiries.";
+
+    await db.insert(messages).values({
+      conversationId: id,
+      role: "assistant",
+      content: fallbackMessage,
+    });
+
+    res.write(`data: ${JSON.stringify({ content: fallbackMessage })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+
+    if (!responseEnded) {
+      res.end();
+      responseEnded = true;
+    }
+  } else {
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to send message" });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: "Stream error" })}\n\n`);
+      if (!responseEnded) {
         res.end();
-
-      } catch (err: any) {
-        console.error("Together AI error:", err);
-
-        // Check if error is a credit/quota error
-        const isCreditLimitError =
-          err?.status === 429 || // Too Many Requests
-          err?.message?.includes("quota") || 
-          err?.message?.includes("credits");
-
-        if (isCreditLimitError) {
-          const fallbackMessage = fallbackResponses[content] || "Sorry, I'm having trouble generating a response at the moment due to temporary AI service limits.. Please try again later or contact FIRS directly at www.firs.gov.ng or call 0800-FIRS-TIN (0800-3477-846) for urgent tax inquiries.";
-
-          // Save fallback to DB
-          await db.insert(messages).values({
-            conversationId: id,
-            role: "assistant",
-            content: fallbackMessage,
-          });
-
-          // Send fallback to client
-          res.write(`data: ${JSON.stringify({ content: fallbackMessage })}\n\n`);
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-          res.end();
-        } else {
-          // Other errors
-          if (!res.headersSent) {
-            res.status(500).json({ error: "Failed to send message" });
-          } else {
-            res.write(`data: ${JSON.stringify({ error: "Stream error" })}\n\n`);
-            res.end();
-          }
-        }
+        responseEnded = true;
       }
+    }
+  }
+}
 
   } catch (err) {
     console.error("Chat error:", err);
