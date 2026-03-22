@@ -4,7 +4,7 @@ import type { Category, CreateCategoryInput, CreateTransactionInput, ErrorRespon
 import { customFetch } from "./custom-fetch";
 import type { ErrorType, BodyType } from "./custom-fetch";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, ""); // Remove trailing slash if present
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;

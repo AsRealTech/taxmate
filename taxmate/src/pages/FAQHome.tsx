@@ -11,42 +11,42 @@ const FAQ_ITEMS = [
   {
     question: "What is FIRS and what does it do?",
     answer:
-      "The Federal Inland Revenue Service (FIRS) is Nigeria's apex tax authority. It is responsible for assessing, collecting, and accounting for taxes due to the Federal Government. FIRS administers taxes like Company Income Tax (CIT), Value Added Tax (VAT), Withholding Tax (WHT), Capital Gains Tax, and more. You can reach them at www.firs.gov.ng or call 0800-FIRS-TIN.",
+      "The Federal Inland Revenue Service (FIRS) is Nigeria’s federal tax authority. It collects and manages taxes like Company Income Tax (CIT), Value Added Tax (VAT), Withholding Tax (WHT), and Capital Gains Tax. You can reach them at www.firs.gov.ng or call 0800-FIRS-TIN. FIRS ensures taxes are paid correctly and helps fund government services.",
   },
   {
     question: "Do I need a Tax Identification Number (TIN)?",
     answer:
-      "Yes. Every individual earning income and every registered business in Nigeria must have a TIN. You can get your TIN free of charge from any FIRS office, through Joint Tax Board (JTB) or online at www.jtb.gov.ng. Without a TIN you cannot open a corporate bank account, access government contracts, or renew certain licences.",
+      "Yes. Every person earning income and every registered business must have a TIN. You can get it free from FIRS, the Joint Tax Board (JTB), or online at www.jtb.gov.ng. Without a TIN, you cannot open a corporate bank account, bid for government contracts, or renew certain licenses.",
   },
   {
-    question: "What is the Personal Income Tax (PIT) rate in Nigeria?",
+    question: "How is Personal Income Tax (PIT) calculated?",
     answer:
-      "Nigeria uses a progressive tax scale: First ₦300,000 — 7%; Next ₦300,000 — 11%; Next ₦500,000 — 15%; Next ₦500,000 — 19%; Next ₦1,600,000 — 21%; Above ₦3,200,000 — 24%. You are entitled to a Consolidated Relief Allowance (CRA) of ₦200,000 + 20% of gross income before applying these rates.",
+      "Nigeria uses a progressive tax system: 0 – ₦800,000: 0%; ₦800,001 – ₦3,000,000: 15%; ₦3,000,001 – ₦12,000,000: 18%; ₦12,000,001 – ₦25,000,000: 21%; ₦25,000,001 – ₦50,000,000: 23%; Above ₦50,000,000: 25%. You also get a Consolidated Relief Allowance (CRA) of ₦200,000 + 20% of your gross income before calculating tax.",
   },
   {
-    question: "What is VAT and do I need to charge it?",
+    question: "What is VAT and who should charge it?",
     answer:
-      "Value Added Tax (VAT) in Nigeria is currently 7.5%. If your annual turnover exceeds ₦25 million, you must register for VAT with FIRS and file monthly VAT returns. Market traders and small businesses below this threshold are typically exempt, but must still account for VAT they pay on goods and services they purchase.",
+      "Value Added Tax (VAT) is currently 7.5%. Businesses with annual turnover above ₦25 million must register for VAT and file monthly returns. Small businesses below that threshold usually don’t charge VAT, but still pay VAT on goods and services they purchase.",
   },
   {
     question: "When are tax returns due?",
     answer:
-      "Individuals must file annual self-assessment returns by 31 March of the following year. Companies must file CIT returns within 6 months of their accounting year-end. VAT returns are due by the 21st of the following month. Late filing attracts penalties — ₦25,000 for the first month and ₦5,000 for each subsequent month.",
+      "Individuals must file annual self-assessment returns by 31 March of the following year. Companies must file CIT returns within 6 months of their accounting year-end. VAT returns are due by the 21st of the following month. Late filing attracts penalties: ₦25,000 for the first month and ₦5,000 for each subsequent month.",
   },
   {
-    question: "What records should I keep as a small business owner?",
+    question: "What records should I keep as a business owner?",
     answer:
-      "Keep all receipts, invoices, bank statements, and cash books for at least 6 years. FIRS can audit your records at any time. TaxMate helps you digitise receipts instantly using your phone camera, categorise expenses, and generate a summary report when filing season arrives.",
+      "Keep receipts, invoices, bank statements, and cash books for at least 6 years. FIRS can audit records at any time. Tools like TaxMate can help digitize receipts, track expenses, and generate reports for filing season.",
   },
   {
     question: "What is Withholding Tax (WHT)?",
     answer:
-      "Withholding Tax is an advance payment of income tax deducted at source. For example, when a company pays you for a service, they deduct WHT (typically 5–10% depending on the transaction type) before paying you. The deducted amount is remitted to FIRS and credited against your final tax liability.",
+      "Withholding Tax is an advance tax deducted at source. For example, if a company pays you for a service, it may deduct 5–10% as WHT before paying you. The deducted amount is sent to FIRS and credited against your final tax bill.",
   },
   {
-    question: "Can I get a tax clearance certificate?",
+    question: "Can I get a Tax Clearance Certificate (TCC)?",
     answer:
-      "Yes. A Tax Clearance Certificate (TCC) is issued by FIRS or your State Revenue Authority to confirm you have no outstanding tax liabilities. It is required for government contracts, bank loans, travel documents, and operating licences. You must have filed and paid all taxes for the preceding 3 years.",
+      "Yes. A Tax Clearance Certificate (TCC) proves you have no outstanding taxes. It is required for government contracts, bank loans, travel documents, or operating licenses. You must have filed and paid all taxes for the last 3 years.",
   },
 ];
 

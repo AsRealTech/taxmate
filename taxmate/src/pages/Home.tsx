@@ -23,6 +23,37 @@ function calcTaxRate(taxable: number) {
   return 0.25;
 }
 
+
+function calculateTax(taxable: number) {
+  let tax = 0;
+
+  if (taxable > 50_000_000) {
+    tax += (taxable - 50_000_000) * 0.25;
+    taxable = 50_000_000;
+  }
+
+  if (taxable > 25_000_000) {
+    tax += (taxable - 25_000_000) * 0.23;
+    taxable = 25_000_000;
+  }
+
+  if (taxable > 12_000_000) {
+    tax += (taxable - 12_000_000) * 0.21;
+    taxable = 12_000_000;
+  }
+
+  if (taxable > 3_000_000) {
+    tax += (taxable - 3_000_000) * 0.18;
+    taxable = 3_000_000;
+  }
+
+  if (taxable > 800_000) {
+    tax += (taxable - 800_000) * 0.15;
+  }
+
+  return Math.round(tax * 100) / 100;
+}
+
 function SignUpModal({ onClose }: { onClose: () => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
@@ -99,14 +130,27 @@ function TaxCalculatorSection() {
   const [downloading, setDownloading] = useState(false);
   const { data: transactions } = useGetTransactions();
 
+  // function calculate() {
+  //   const inc = parseFloat(income.replace(/,/g, "")) || 0;
+  //   const exp = parseFloat(expenses.replace(/,/g, "")) || 0;
+  //   const taxable = Math.max(0, inc - exp);
+  //   const rate = calcTaxRate(taxable);
+  //   const tax = Math.round(taxable * rate * 100) / 100;
+  //   setResult({ income: inc, expenses: exp, taxable, tax, rate });
+  // }
+
   function calculate() {
-    const inc = parseFloat(income.replace(/,/g, "")) || 0;
-    const exp = parseFloat(expenses.replace(/,/g, "")) || 0;
-    const taxable = Math.max(0, inc - exp);
-    const rate = calcTaxRate(taxable);
-    const tax = Math.round(taxable * rate * 100) / 100;
-    setResult({ income: inc, expenses: exp, taxable, tax, rate });
-  }
+  const parse = (val:string) => parseFloat((val || "").replace(/,/g, "")) || 0;
+
+  const inc = parse(income);
+  const exp = parse(expenses);
+
+  const taxable = Math.max(0, inc - exp);
+  const rate = calcTaxRate(taxable);
+  const tax = calculateTax(taxable);
+
+  setResult({ income: inc, expenses: exp, taxable, tax, rate });
+}
 
   async function downloadPdf() {
     if (!result) return;
