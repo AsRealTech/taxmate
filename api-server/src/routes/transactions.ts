@@ -71,11 +71,11 @@ router.post("/", async (req, res) => {
     const [row] = await db
       .insert(transactionsTable)
       .values({
-        type: body.type,
+        type: body.type === "expense" ? "expense" : "income",
         amount: String(body.amount),
         description: body.description,
         categoryId: body.categoryId ?? null,
-        date: body.date,
+        date: new Date(body.date).toISOString(), 
         notes: body.notes ?? null,
         receiptId: body.receiptId ?? null,
       })
