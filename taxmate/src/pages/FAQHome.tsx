@@ -334,8 +334,8 @@ export default function FAQHome() {
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Contact FIRS directly</p>
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>📞 Toll-free: <span className="font-medium text-foreground">0800-FIRS-TIN (0800-3477-846)</span></p>
-            <p>🌐 Website: <a href="https://www.firs.gov.ng" target="_blank" rel="noopener noreferrer" className="text-primary underline decoration-primary/40">www.firs.gov.ng</a></p>
-            <p>📧 Email: <a href="mailto:info@firs.gov.ng" className="text-primary underline decoration-primary/40">info@firs.gov.ng</a></p>
+            <p>🌐 Website: <a href="https://www.nrs.gov.ng" target="_blank" rel="noopener noreferrer" className="text-primary underline decoration-primary/40">www.nrs.gov.ng</a></p>
+            <p>📧 Email: <a href="mailto:info@nrs.gov.ng" className="text-primary underline decoration-primary/40">info@nrs.gov.ng</a></p>
           </div>
         </div>
 

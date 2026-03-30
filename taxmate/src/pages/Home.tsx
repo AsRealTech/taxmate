@@ -326,12 +326,12 @@ export default function Home() {
                 Nigeria's official tax authority — responsible for all federal taxes.
               </p>
               <a
-                href="https://www.firs.gov.ng"
+                href="https://www.nrs.gov.ng"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-medium text-white underline decoration-white/50 mt-1.5 hover:text-green-100"
               >
-                www.firs.gov.ng <ExternalLink className="w-3 h-3" />
+                www.nrs.gov.ng <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           </div>
