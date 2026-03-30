@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useGetReceipts, useUploadReceipt } from "@/lib/api-client";
 import { toBase64, formatNaira } from "@/lib/utils";
@@ -10,12 +11,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Receipts() {
   const { data: receipts, isLoading: isReceiptsLoading } = useGetReceipts();
+  const queryClient = useQueryClient();
   const uploadMutation = useUploadReceipt();
   const normalizedReceipts = Array.isArray(receipts) ? receipts : [];
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [scannedData, setScannedData] = useState<any>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [brokenImageIds, setBrokenImageIds] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,23 +29,28 @@ export default function Receipts() {
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
     setScannedData(null);
+    setUploadError(null);
 
     try {
       const base64 = await toBase64(file);
       // Simulate scanning delay for better UX
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mimeType = file.type as "image/jpeg" | "image/png" | "image/webp";
+
+      const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+      const mimeType = allowedMimeTypes.includes(file.type) ? file.type : "image/jpeg";
+
       const result = await uploadMutation.mutateAsync({
         data: {
           imageData: base64,
-          mimeType: mimeType || "image/jpeg"
+          mimeType: mimeType as "image/jpeg" | "image/png" | "image/webp",
         }
       });
-      
+
       setScannedData(result);
+      queryClient.invalidateQueries(["/api/receipts"]);
     } catch (error) {
       console.error("Upload failed", error);
+      setUploadError(error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -49,6 +58,8 @@ export default function Receipts() {
     setSelectedFile(null);
     setPreview(null);
     setScannedData(null);
+    setUploadError(null);
+    uploadMutation.reset();
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -95,7 +106,7 @@ export default function Receipts() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="relative bg-black rounded-[2rem] overflow-hidden shadow-2xl"
               >
-                <img src={preview} alt="Receipt preview" className="w-full h-64 object-cover opacity-60" />
+                <img src={preview} alt="Receipt preview" className="w-full h-84 object-cover opacity-60" />
                 
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-gradient-to-t from-black/80 to-black/20">
                   {uploadMutation.isPending ? (
@@ -132,7 +143,6 @@ export default function Receipts() {
                             type: 'expense',
                             amount: scannedData.extractedAmount || 0,
                             description: scannedData.extractedVendor || 'Receipt expense',
-                            receiptId: scannedData.id,
                             date: scannedData.extractedDate || format(new Date(), 'yyyy-MM-dd')
                           }}
                           onSuccess={resetScanner}
@@ -170,8 +180,13 @@ export default function Receipts() {
               {normalizedReceipts.map(r => (
                 <div key={r.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border/50 relative group">
                   <div className="h-24 bg-muted relative">
-                    {r.imageUrl ? (
-                      <img src={r.imageUrl} alt="Receipt" className="w-full h-full object-cover" />
+                    {r.imageUrl && !brokenImageIds.includes(r.id) ? (
+                      <img
+                        src={r.imageUrl}
+                        alt="Receipt"
+                        className="w-full h-full object-cover"
+                        onError={() => setBrokenImageIds((ids) => ids.includes(r.id) ? ids : [...ids, r.id])}
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <FileText className="w-8 h-8 text-muted-foreground/30" />

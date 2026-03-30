@@ -1,14 +1,14 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, ListOrdered, ScanLine, PieChart, HelpCircle } from "lucide-react";
+import { Home, ScanLine, HelpCircle, LogIn, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ReactNode } from "react";
 
 const NAV_ITEMS = [
   { path: "/", label: "Home", icon: Home },
-  { path: "/transactions", label: "History", icon: ListOrdered },
+  { path: "/account", label: "Account", icon: User},
   { path: "/receipts", label: "Scan", icon: ScanLine, isPrimary: true },
-  { path: "/tax", label: "Taxes", icon: PieChart },
+  { path: "/login", label: "Login", icon: LogIn },
   { path: "/faq", label: "Help", icon: HelpCircle },
 ];
 
@@ -16,7 +16,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
   const [location] = useLocation();
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-background w-full mx-auto px-4 sm:max-w-[540px] md:max-w-[720px] 
+    <div className="flex flex-col mb-4 min-h-[100dvh] bg-background w-full mx-auto px-4 sm:max-w-[540px] md:max-w-[720px] 
     lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px] relative overflow-hidden md:rounded-[2.5rem] md:my-8 md:h-[90vh]">
       
       {/* Top Header */}

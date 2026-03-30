@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,6 +10,9 @@ import Transactions from "@/pages/Transactions";
 import Receipts from "@/pages/Receipts";
 import Tax from "@/pages/Tax";
 import FAQ from "@/pages/FAQ";
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import { AuthProvider, RequireAuth } from "@/lib/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +31,12 @@ function Router() {
       <Route path="/receipts" component={Receipts} />
       <Route path="/tax" component={Tax} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/login" component={Login} />
+      <Route path="/account" component={() => (
+        // <RequireAuth>
+          <Dashboard />
+        // </RequireAuth>
+      )} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -36,9 +46,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
+        <AuthProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+        </AuthProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

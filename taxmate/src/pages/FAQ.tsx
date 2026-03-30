@@ -48,6 +48,7 @@ const FAQ_ITEMS = [
       "Yes. A Tax Clearance Certificate (TCC) proves you have no outstanding taxes. It is required for government contracts, bank loans, travel documents, or operating licenses. You must have filed and paid all taxes for the last 3 years.",
   },
 ];
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -159,14 +160,14 @@ export default function FAQ() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-gradient-to-r from-green-600 to-green-700 p-4 text-white shadow-lg"
+          className="rounded-2xl bg-gradient-to-r mt-4 from-green-600 to-green-700 p-4 text-white shadow-lg"
         >
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
               <span className="text-lg font-bold">🇳🇬</span>
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-sm">Federal Inland Revenue Service (FIRS)</p>
+              <p className="font-semibold text-sm">Nigeria Revenue Service (FIRS)</p>
               <p className="text-xs text-green-100 mt-0.5">
                 Nigeria's official tax authority — responsible for all federal taxes.
               </p>
@@ -255,7 +256,7 @@ export default function FAQ() {
                   </div>
                   <p className="text-sm font-medium text-foreground">Ask me anything about Nigerian tax</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    VAT, PAYE, TIN, FIRS deadlines, and more
+                    VAT, PAYE, TIN, NRS deadlines, and more
                   </p>
                   <div className="flex flex-wrap gap-2 justify-center mt-3">
                     {["How do I get a TIN?", "When is VAT due?", "What tax reliefs can I claim?"].map((q) => (

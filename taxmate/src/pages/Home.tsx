@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { formatNaira, cn } from "@/lib/utils";
 import {
-  ArrowUpRight, ArrowDownRight, ScanLine, ListOrdered,
+  ArrowUpRight, ArrowDownRight, ArrowRight, ScanLine, ListOrdered,
   Calculator, ChevronRight, CheckCircle2, Download,
   UserPlus, Sparkles, Star, X, Loader2,
   ExternalLink,
@@ -130,15 +130,6 @@ function TaxCalculatorSection() {
   const [downloading, setDownloading] = useState(false);
   const { data: transactions } = useGetTransactions();
 
-  // function calculate() {
-  //   const inc = parseFloat(income.replace(/,/g, "")) || 0;
-  //   const exp = parseFloat(expenses.replace(/,/g, "")) || 0;
-  //   const taxable = Math.max(0, inc - exp);
-  //   const rate = calcTaxRate(taxable);
-  //   const tax = Math.round(taxable * rate * 100) / 100;
-  //   setResult({ income: inc, expenses: exp, taxable, tax, rate });
-  // }
-
   function calculate() {
   const parse = (val:string) => parseFloat((val || "").replace(/,/g, "")) || 0;
 
@@ -163,7 +154,8 @@ function TaxCalculatorSection() {
         date: tx.date,
         category: tx.category?.name,
       }));
-      const res = await fetch("/api/tax/pdf", {
+      const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+      const res = await fetch(`${apiBase}/api/tax/pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -176,7 +168,13 @@ function TaxCalculatorSection() {
         }),
       });
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      if (!res.ok) {
+        const errorText = await blob.text();
+        console.error("Failed to generate PDF:", res.status, errorText);
+        throw new Error(errorText || `PDF request failed with status ${res.status}`);
+      }
+      const pdfBlob = new Blob([blob], { type: "application/pdf" });
+      const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `tax-estimate-${new Date().toISOString().slice(0, 7)}.pdf`;
@@ -307,30 +305,12 @@ function TaxCalculatorSection() {
 }
 
 export default function Home() {
-  const { data: transactions, isLoading } = useGetTransactions();
+    const { data: transactions, isLoading } = useGetTransactions();
 
   return (
     <AppLayout>
       <div className="px-1 pb-6 space-y-6">
-        {/* Hero */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-1.5 text-primary text-sm font-medium mb-1">
-              <Sparkles className="w-4 h-4" />
-              <span>Welcome to TaxMate</span>
-            </div>
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              Your simple<br />tax companion
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed max-w-[220px]">
-              Track income, scan receipts, and understand your taxes — no accountant needed.
-            </p>
-          </div>
-          <div className="shrink-0 w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <span className="text-2xl font-black text-white">₦</span>
-          </div>
-        </div>
-        {/* FIRS Banner */}
+        {/* NRS Banner */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -341,7 +321,7 @@ export default function Home() {
               <span className="text-lg font-bold">🇳🇬</span>
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-sm">Federal Inland Revenue Service (FIRS)</p>
+              <p className="font-semibold text-sm">Nigeria Revenue Service (NRS)</p>
               <p className="text-xs text-green-100 mt-0.5">
                 Nigeria's official tax authority — responsible for all federal taxes.
               </p>
@@ -356,58 +336,67 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-
-
-        {/* Action Cards */}
-        <div>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Quick Actions</h2>
-          <div className="grid md:grid-cols-4 grid-cols-2 gap-4">
-
-            {/* Add Income */}
-            <TransactionForm
-              initialData={{ type: "income" }}
-              trigger={
-                <button className="flex flex-col items-start p-4 bg-white rounded-2xl border border-border/50 shadow-sm hover:border-primary/30 hover:shadow-md transition-all active:scale-95 text-left w-full">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center mb-3">
-                    <ArrowUpRight className="w-5 h-5 text-green-600" />
-                  </div>
-                  <p className="font-semibold text-sm text-foreground leading-tight">Add Income</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Record a sale or payment</p>
-                </button>
-              }
-            />
-
-            {/* Add Expense */}
-            <TransactionForm
-              initialData={{ type: "expense" }}
-              trigger={
-                <button className="flex flex-col items-start p-4 bg-white rounded-2xl border border-border/50 shadow-sm hover:border-red-200 hover:shadow-md transition-all active:scale-95 text-left w-full">
-                  <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mb-3">
-                    <ArrowDownRight className="w-5 h-5 text-red-500" />
-                  </div>
-                  <p className="font-semibold text-sm text-foreground leading-tight">Add Expense</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Log a business cost</p>
-                </button>
-              }
-            />
-
-            {/* Scan Receipt */}
-            <Link href="/receipts" className="flex flex-col items-start p-4 bg-white rounded-2xl border border-border/50 shadow-sm hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                <ScanLine className="w-5 h-5 text-primary" />
+        
+        {/* Hero */}
+        <div className="space-y-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-1.5 text-primary text-sm font-medium mb-1">
+                <Sparkles className="w-4 h-4" />
+                <span>Welcome to TaxMate</span>
               </div>
-              <p className="font-semibold text-sm text-foreground leading-tight">Scan Receipt</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Photo → auto-extract</p>
-            </Link>
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
+                Your simple tax companion for smarter cashflow
+              </h1>
+              <p className="text-sm text-muted-foreground mt-3 leading-relaxed max-w-xl">
+                Track income, scan receipts, and understand your taxes without the complexity. Start with a snapshot of your business performance and let TaxMate keep everything organised.
+              </p>
 
-            {/* View Transactions */}
-            <Link href="/transactions" className="flex flex-col items-start p-4 bg-white rounded-2xl border border-border/50 shadow-sm hover:border-primary/30 hover:shadow-md transition-all active:scale-95">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
-                <ListOrdered className="w-5 h-5 text-purple-500" />
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-primary/10 transition hover:bg-primary/90">
+                  <ArrowUpRight className="w-4 h-4" />
+                  Add Transaction
+                </Link>
+                <Link href="/receipts" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary">
+                  <ListOrdered className="w-4 h-4" />
+                  Scan Receipt
+                </Link>
+                <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10">
+                  <ArrowRight className="w-4 h-4" />
+                  Sign in to Dashboard
+                </Link>
               </div>
-              <p className="font-semibold text-sm text-foreground leading-tight">Transactions</p>
-              <p className="text-xs text-muted-foreground mt-0.5">View all records</p>
-            </Link>
+            </div>
+
+            <div className="shrink-0 w-20 h-20 rounded-3xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+              <span className="text-3xl font-black text-white">₦</span>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl bg-white border border-border/50 p-5 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
+              <ListOrdered className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Record once</h3>
+            <p className="text-sm text-muted-foreground">Log income, expenses, or receipts and keep your business finances organised in one place.</p>
+          </div>
+          <div className="rounded-3xl bg-white border border-border/50 p-5 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
+              <Calculator className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Estimate instantly</h3>
+            <p className="text-sm text-muted-foreground">Get a quick tax estimate as soon as you enter your numbers, with transparency on taxable income and rates.</p>
+          </div>
+          <div className="rounded-3xl bg-white border border-border/50 p-5 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Take action</h3>
+            <p className="text-sm text-muted-foreground">Export summaries, sign up for reminders, and stay ahead of deadlines with a simpler workflow.</p>
           </div>
         </div>
 

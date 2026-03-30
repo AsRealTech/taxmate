@@ -234,13 +234,13 @@ export function TransactionForm({ initialData, onSuccess, trigger }: Transaction
               </div>
             </div>
 
-            <Button disabled
+            <Button 
               type="submit" 
               className={cn(
                 "w-full h-14 rounded-2xl text-lg font-semibold shadow-lg transition-all active:scale-[0.98]",
                 type === "income" ? "bg-primary hover:bg-primary/90 shadow-primary/25" : "bg-destructive hover:bg-destructive/90 shadow-destructive/25"
               )}
-              // disabled={createMutation.isPending}
+              disabled={createMutation.isPending}
             >
               {createMutation.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

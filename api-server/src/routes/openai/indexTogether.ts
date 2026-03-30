@@ -13,7 +13,7 @@ You specialise in:
 - Value Added Tax (VAT) — currently 7.5% in Nigeria
 - Withholding Tax (WHT)
 - Company Income Tax (CIT)
-- FIRS (Federal Inland Revenue Service) compliance, TIN registration, and filing deadlines
+- NRS (Nigeria Revenue Service) compliance, TIN registration, and filing deadlines
 - LIRS (Lagos Internal Revenue Service) and other state revenue boards
 - Simple bookkeeping, expense tracking, and record-keeping for small businesses
 - Tax reliefs and allowances available to individual taxpayers in Nigeria
@@ -211,7 +211,7 @@ try {
   const isCreditLimitError =
     err?.status === 429 ||
     err?.message?.includes("quota") ||
-    err?.message?.includes("credits");
+    err?.message?.includes("Credit limit exceeded");
 
   if (isCreditLimitError) {
     const fallbackMessage =

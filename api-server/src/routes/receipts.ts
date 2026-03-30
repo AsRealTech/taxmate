@@ -26,13 +26,17 @@ router.post("/", async (req, res) => {
       .insert(receiptsTable)
       .values({
         status: "pending",
-        imageUrl: `data:${body.mimeType};base64,${body.imageData.substring(0, 50)}...`,
+        imageUrl: `data:${body.mimeType};base64,${body.imageData}`,
       })
       .returning();
 
-    processReceiptAsync(row.id, body.imageData, body.mimeType).catch(console.error);
+    await processReceiptAsync(row.id, body.imageData, body.mimeType);
 
-    res.status(201).json({ ...row, extractedAmount: null });
+    const [updatedRow] = await db.select().from(receiptsTable).where(eq(receiptsTable.id, row.id));
+    res.status(201).json({
+      ...updatedRow,
+      extractedAmount: updatedRow?.extractedAmount ? parseFloat(updatedRow.extractedAmount) : null,
+    });
   } catch (err) {
     res.status(400).json({ error: "Bad Request", message: String(err) });
   }
